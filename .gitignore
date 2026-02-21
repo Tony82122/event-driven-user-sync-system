@@ -1,0 +1,26 @@
+﻿# IDE
+.idea/
+
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output
+*.out
+
+# Dependency directories
+vendor/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temp files
+*.tmp
+
