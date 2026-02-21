@@ -4,7 +4,7 @@ A production-style event-driven microservices system built with **Go**, **Rabbit
 
 ## Architecture
 
-![Architecture Diagram](docs\Diagram.png)
+![Architecture Diagram](docs/Diagram.png)
 
 <details>
 <summary>📐 PlantUML Source</summary>
