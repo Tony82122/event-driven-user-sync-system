@@ -1,4 +1,4 @@
-﻿package api
+package api
 
 import (
 	"database/sql"
@@ -9,20 +9,24 @@ import (
 
 	"awesomeProject/pkg/middleware"
 	"awesomeProject/pkg/models"
-	"awesomeProject/pkg/rabbitmq"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
+// EventPublisher defines the interface for publishing events.
+type EventPublisher interface {
+	Publish(routingKey string, body []byte, correlationID string) error
+}
+
 // UserHandler handles user-related HTTP requests.
 type UserHandler struct {
 	DB        *sql.DB
-	Publisher *rabbitmq.Publisher
+	Publisher EventPublisher
 }
 
 // NewUserHandler creates a new UserHandler.
-func NewUserHandler(db *sql.DB, pub *rabbitmq.Publisher) *UserHandler {
+func NewUserHandler(db *sql.DB, pub EventPublisher) *UserHandler {
 	return &UserHandler{DB: db, Publisher: pub}
 }
 

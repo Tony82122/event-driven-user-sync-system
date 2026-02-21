@@ -1,4 +1,4 @@
-﻿package analytics
+package analytics
 
 import (
 	"database/sql"
@@ -14,12 +14,13 @@ import (
 
 // Consumer handles analytics events.
 type Consumer struct {
-	DB *sql.DB
+	DB               *sql.DB
+	SimulateFailures bool
 }
 
 // NewConsumer creates a new analytics consumer.
 func NewConsumer(db *sql.DB) *Consumer {
-	return &Consumer{DB: db}
+	return &Consumer{DB: db, SimulateFailures: true}
 }
 
 // HandleMessage processes a user event for analytics.
@@ -46,7 +47,7 @@ func (c *Consumer) HandleMessage(delivery amqp.Delivery) error {
 	}
 
 	// Simulate random failure (10% chance)
-	if rand.Intn(10) == 0 {
+	if c.SimulateFailures && rand.Intn(10) == 0 {
 		log.Printf("[Analytics] Simulated failure! event_id=%s correlation_id=%s", event.EventID, event.CorrelationID)
 		return fmt.Errorf("simulated analytics failure")
 	}

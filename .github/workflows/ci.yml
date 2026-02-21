@@ -1,0 +1,89 @@
+﻿name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Run go vet
+        run: go vet ./...
+
+      - name: Check formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "Files not formatted:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test ./pkg/... ./internal/... -v -count=1 -race -coverprofile=coverage.out
+
+      - name: Display coverage
+        run: go tool cover -func=coverage.out
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Build api-service
+        run: CGO_ENABLED=0 go build -o bin/api-service ./cmd/api-service
+
+      - name: Build crm-consumer
+        run: CGO_ENABLED=0 go build -o bin/crm-consumer ./cmd/crm-consumer
+
+      - name: Build analytics-consumer
+        run: CGO_ENABLED=0 go build -o bin/analytics-consumer ./cmd/analytics-consumer
+
+      - name: Build CLI
+        run: CGO_ENABLED=0 go build -o bin/cli ./cmd/cli
+
+  docker:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build api-service image
+        run: docker build -f cmd/api-service/Dockerfile -t api-service:test .
+
+      - name: Build crm-consumer image
+        run: docker build -f cmd/crm-consumer/Dockerfile -t crm-consumer:test .
+
+      - name: Build analytics-consumer image
+        run: docker build -f cmd/analytics-consumer/Dockerfile -t analytics-consumer:test .
+
