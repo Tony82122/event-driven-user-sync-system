@@ -1,15 +1,14 @@
-﻿﻿# Event-Driven Backend System
+﻿# Event-Driven Backend System
 
 A production-style event-driven microservices system built with **Go**, **RabbitMQ**, and **PostgreSQL**. Demonstrates fan-out messaging, correlation IDs, idempotency, retry logic with dead-letter queues, and Docker Compose orchestration.
 
 ## Architecture
 
-![Architecture Diagram](docs/architecture.png)
+![Architecture Diagram](docs\Diagram.png)
 
 <details>
 <summary>📐 PlantUML Source</summary>
 
-```plantuml
 @startuml
 left to right direction
 skinparam componentStyle rectangle
@@ -49,22 +48,21 @@ AN --> DB2
 Q1 --> DLQ1 : fail
 Q2 --> DLQ2 : fail
 @enduml
-```
 
 </details>
 
 ## Features
 
-| Feature | Implementation |
-|---|---|
-| **Correlation ID** | Generated/extracted via `X-Correlation-ID` header, passed through RabbitMQ messages, logged everywhere |
-| **Idempotency** | Duplicate event IDs tracked in `idempotency_keys` table and silently ignored |
-| **Retry + DLQ** | Failed messages nack'd without requeue → routed to dead-letter queue via RabbitMQ DLX |
-| **Fan-out** | Topic exchange routes `user.*` events to both CRM and Analytics queues |
-| **Async Processing** | Consumers process events independently and asynchronously |
-| **Decoupled Services** | Each service has its own database, communicates only via events |
-| **Simulated Failures** | 10% random failure rate in consumers to demonstrate DLQ behavior |
-| **Swagger/OpenAPI** | API docs at `http://localhost:8080/swagger/index.html` |
+| Feature                | Implementation                                                                                         |
+|------------------------|--------------------------------------------------------------------------------------------------------|
+| **Correlation ID**     | Generated/extracted via `X-Correlation-ID` header, passed through RabbitMQ messages, logged everywhere |
+| **Idempotency**        | Duplicate event IDs tracked in `idempotency_keys` table and silently ignored                           |
+| **Retry + DLQ**        | Failed messages nack'd without requeue → routed to dead-letter queue via RabbitMQ DLX                  |
+| **Fan-out**            | Topic exchange routes `user.*` events to both CRM and Analytics queues                                 |
+| **Async Processing**   | Consumers process events independently and asynchronously                                              |
+| **Decoupled Services** | Each service has its own database, communicates only via events                                        |
+| **Simulated Failures** | 10% random failure rate in consumers to demonstrate DLQ behavior                                       |
+| **Swagger/OpenAPI**    | API docs at `http://localhost:8080/swagger/index.html`                                                 |
 
 ## Services
 
@@ -90,13 +88,13 @@ Q2 --> DLQ2 : fail
 
 ## RabbitMQ Objects
 
-| Object | Type | Purpose |
-|---|---|---|
-| `events` | Topic Exchange | Routes user events by routing key |
-| `crm.user.events` | Queue | CRM consumer's main queue |
-| `analytics.user.events` | Queue | Analytics consumer's main queue |
-| `dlq.crm.user.events` | Queue (DLQ) | Dead-letter queue for failed CRM messages |
-| `dlq.analytics.user.events` | Queue (DLQ) | Dead-letter queue for failed Analytics messages |
+| Object                      | Type           | Purpose                                         |
+|-----------------------------|----------------|-------------------------------------------------|
+| `events`                    | Topic Exchange | Routes user events by routing key               |
+| `crm.user.events`           | Queue          | CRM consumer's main queue                       |
+| `analytics.user.events`     | Queue          | Analytics consumer's main queue                 |
+| `dlq.crm.user.events`       | Queue (DLQ)    | Dead-letter queue for failed CRM messages       |
+| `dlq.analytics.user.events` | Queue (DLQ)    | Dead-letter queue for failed Analytics messages |
 
 **Routing keys:** `user.created`, `user.updated`, `user.deleted`
 
