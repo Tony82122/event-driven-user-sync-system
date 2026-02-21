@@ -1,4 +1,4 @@
-﻿package main
+package main
 
 import (
 	"bufio"
@@ -227,7 +227,7 @@ func buildPrompt() string {
 	}
 
 	// Build the bar
-	bar := fmt.Sprintf("%s%s %s  %s | %s | %s %s%s",
+	bar := fmt.Sprintf("%s%s %s  %s | %s %s%s",
 		barBg, Black,
 		dir,
 		branch,
